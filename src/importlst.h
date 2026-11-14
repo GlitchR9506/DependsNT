@@ -1,6 +1,7 @@
 // importlst.h
 #ifndef IMPORTLST_H
 #define IMPORTLST_H
+#include <windows.h>
 #include <c_vector/vector.h>
 
 PVOID ImageRvaToVa(

@@ -176,7 +176,7 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
  */
 #define vector_free(vector)                                                    \
   if (vector) {                                                                \
-    free(&((size_t *)(vector))[-2]);                                           \
+    HeapFree(GetProcessHeap(),0,&((size_t *)(vector))[-2]);                                           \
   }
 
 /*
@@ -228,9 +228,15 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
 static inline void *__vector_alloc(void *vector, size_t new_capacity,
                                    size_t size_of_item) {
   size_t size = ((vector) ? vector_size(vector) : 0);
-  size_t *new_array =
-      (size_t *)realloc(vector ? &(((size_t *)vector)[-2]) : NULL,
+  size_t *new_array;
+  if (vector == NULL) {
+     new_array = (size_t *)HeapAlloc(GetProcessHeap(), 0,
                         size_of_item * new_capacity + 2 * sizeof(size_t));
+    }else {
+  new_array =
+      (size_t *)HeapReAlloc(GetProcessHeap(), 0,vector ? &(((size_t *)vector)[-2]) : NULL,
+                        size_of_item * new_capacity + 2 * sizeof(size_t));
+    }
   new_array[0] = size;
   new_array[1] = new_capacity;
   return (&new_array[2]);

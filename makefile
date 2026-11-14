@@ -11,7 +11,7 @@ ifndef NDEBUG
 endif
 
 # dont use any mingw stuff
-CFLAGS += -nostdinc -nostdlib -nodefaultlibs 
+CFLAGS += -nostdinc -nostdlib -nodefaultlibs  -Wno-builtin-declaration-mismatch
 
 # set minimum version to NT 3.1
 CFLAGS += -Wl,--major-subsystem-version,3 -Wl,--minor-subsystem-version,10
@@ -25,7 +25,7 @@ LDLIBS =
 
 # C runtime
 ifndef CRT
-	CRT=MSVCRT
+	CRT=LIBC
 endif
 
 ifeq ($(CRT),MSVCRT)
