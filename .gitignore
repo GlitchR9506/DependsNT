@@ -3,4 +3,10 @@
 
 *.dll
 
+*.a
+
+*.obj
+
+*.pdb
+
 _old/
