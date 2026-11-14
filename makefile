@@ -1,4 +1,4 @@
-CC ?= i686-w64-mingw32-gcc
+CC ?= gcc
 INC_DIRS  ?= ../vc1/INCLUDE
 LIB_DIRS  ?= ../vc1/LIB
 
