@@ -7,7 +7,7 @@ LD = lld-link
 
 # reset values
 INC_DIRS ?= $(VC_INC_DIRS)
-LIB_DIRS ?= $(VC_LIB_DIRS) 
+LIB_DIRS ?= $(VC_LIB_DIRS) /LIBPATH:"lib" 
 LDFLAGS = 
 LDLIBS = 
 CFLAGS = -v -Wno-unused-value -Wno-ignored-pragma-intrinsic -Wno-missing-prototype-for-cc

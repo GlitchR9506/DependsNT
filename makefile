@@ -17,9 +17,9 @@ endif
 
 ifndef VC_LIB_DIRS
 
-ERROR_AND_QUIT_BEFORE_INC=1
-$(warning VC_LIB_DIRS is not set. set in environment or in user.mk)
-$(warning example: [/LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib"  /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86"])
+#ERROR_AND_QUIT_BEFORE_INC=1
+#$(warning VC_LIB_DIRS is not set. set in environment or in user.mk)
+#$(warning example: [/LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib"  /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86"])
 
 endif
 
