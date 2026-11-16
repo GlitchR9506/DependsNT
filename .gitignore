@@ -16,3 +16,5 @@ obj/*.*
 user.mk
 
 _old/
+
+rel/

@@ -24,7 +24,7 @@ CFLAGS =
 ifdef GCC
 	CFLAGS +=  -Wno-unused-value -Wno-ignored-pragma-intrinsic -Wno-missing-prototype-for-cc
 else
-	CLFLAGS +=
+	CFLAGS += -v 
 endif
 
 
@@ -34,7 +34,7 @@ endif
 ifdef GCC
 	CFLAGS += -c
 else
-	CLFLAGS += /c
+	CFLAGS += /c
 endif
 
 
