@@ -1,4 +1,10 @@
 
+ifdef GNU_DLLTOOL
+	DLLTOOL = dlltool -m i386
+else
+	DLLTOOL = llvm-dlltool  -m i386
+endif
+
 # Find all .txt files in src/
 SRCS := $(wildcard lib/*.def)
 
@@ -9,7 +15,7 @@ $(info SRCS=$(SRCS) OUTS=$(OUTS))
 libs: $(OUTS)
 
 lib/%.lib: lib/%.def
-	llvm-dlltool -m i386  -d $< -l $@ -k
+	$(DLLTOOL) -d $< -l $@ -k
 
 cleanlibs:
 	rm -f $(OUTS) 

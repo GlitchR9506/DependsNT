@@ -46,5 +46,8 @@ clean: cleanlibs cleanexe
 
 
 
+GCC=1
+#GNU_DLLTOOL
 include libs.mk
-include clang.mk
+#include clang.mk
+include gcc.mk

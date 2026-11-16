@@ -14,12 +14,6 @@ CFLAGS = -v -Wno-unused-value -Wno-ignored-pragma-intrinsic -Wno-missing-prototy
 
 
 
-# yada yada
-ifndef CRT
-	CRT=LIBC
-endif
-
-
 
 #
 # compiler settings
@@ -61,24 +55,8 @@ LDFLAGS += /MACHINE:X86
 # defines
 DEFINES += /D_WIN32_WINNT=0x0310 /DWINVER=0x0310 /U_MSC_VER /D_MSC_VER=900 /DWIN32 /D_WIN32 /D_X86_ -U_M_IX86 /D_M_IX86=300
 
-
-#
 # libraries
-#
-
-ifeq ($(CRT),MSVCRT)
-#LDLIBS += msvcrt.lib 
-#CFLAGS +=  /MD
-else ifeq ($(CRT),LIBC)
-#LDLIBS += -static 
-#LDLIBS += libcmt.lib
-#CFLAGS +=  /MT
-endif
-
-LDLIBS += crtdll.lib
-
-# libraries
-LDLIBS += Comdlg32.lib user32.lib kernel32.lib gdi32.lib
+LDLIBS += Comdlg32.lib user32.lib kernel32.lib gdi32.lib crtdll.lib
 
 
 
