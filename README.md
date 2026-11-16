@@ -22,7 +22,16 @@ thats it, no dynamic stuff or anything.
 
 
 # Building-Prerequisites
-have `make`, `clang-cl`, `lld-link`, and `llvm-dlltool`, and windows headers (`VC_INC_DIRS`)
+have `make`
+
+have clang tools `clang-cl`, `lld-link`, and `llvm-dlltool`
+or have gcc tools `gcc`, `ld`, `dlltool`
+
+by default the program is compiled using `gcc` and `ld` but `llvm-dlltool` because I was having issues with `dlltool`
+
+set `CLANG` to use `clang` and set `GNU_DLLTOOL` to use `dlltool`
+
+Have windows headers (`VC_INC_DIRS`)
 
 set `VC_INC_DIRS` in your environment, when calling `make` or in user.mk
 
