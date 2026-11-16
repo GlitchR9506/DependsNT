@@ -1,0 +1,29 @@
+#include <winver.h>
+
+IDI_APPICON ICON "appicon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION     1,0,0,0
+ PRODUCTVERSION  1,0,0,0
+ FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+ FILEFLAGS       0x0L
+ FILEOS          VOS_NT_WINDOWS32
+ FILETYPE        VFT_APP
+ FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "04090000" // US English (0409) + Unicode (04b0)
+        BEGIN
+            VALUE "FileDescription",  "Dependency Walker for NT 3.1+\0"
+            VALUE "LegalCopyright",   "GlitchR9506\0"
+            VALUE "OriginalFilename", "dependsnt.exe\0"
+            VALUE "ProductName",      "DependsNT\0"
+            VALUE "ProductVersion",   "1.0.1.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

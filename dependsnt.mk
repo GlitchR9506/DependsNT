@@ -163,7 +163,7 @@ endif
 
 
 $(TARGET):  $(OBJS)
-	$(LD) $(LDFLAGS) $(LIB_DIRS) $(OBJS) $(LDLIBS)  $(OUT_FLAG)dependsnt.exe
+	$(LD) $(LDFLAGS) $(LIB_DIRS) $(RESOURCEFILE) $(OBJS) $(LDLIBS) $(OUT_FLAG)dependsnt.exe
 ifdef GCC
 obj/%.a: src/%.c
 else

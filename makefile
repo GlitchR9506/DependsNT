@@ -38,11 +38,11 @@ TARGET  ?= dependsnt.exe
 
 
 
-.PHONY: clean libs
+.PHONY: clean libs res
 
 all: libs $(TARGET)
 
-clean: cleanlibs cleanexe
+clean: cleanlibs cleanexe cleanres
 
 
 ifndef CLANG
@@ -52,3 +52,4 @@ endif
 #GNU_DLLTOOL
 include libs.mk
 include dependsnt.mk
+include res.mk
