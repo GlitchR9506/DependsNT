@@ -7,6 +7,12 @@
 
 *.obj
 
+*.lib
+
 *.pdb
+
+obj/*.*
+
+user.mk
 
 _old/

@@ -1,53 +1,50 @@
-CC ?= gcc
-INC_DIRS  ?= ../vc1/INCLUDE
-LIB_DIRS  ?= ../vc1/LIB
+ifneq ($(wildcard user.mk),)
 
+include user.mk
+else
 
-# compiler settings
-CFLAGS = -m32 -march=i486 -mwindows 
+$(warning User.mk does not exist.)
 
-ifndef NDEBUG
-	CLFAGS += -g -DDEBUG -D_DEBUG
+endif 
+
+ifndef VC_INC_DIRS
+
+ERROR_AND_QUIT_BEFORE_INC=1
+$(warning VC_INC_DIRS is not set. set in environment or in user.mk)
+$(warning example: [VC_INC_DIRS = -I../vc1/INCLUDE])
+
 endif
 
-# dont use any mingw stuff
-CFLAGS += -nostdinc -nostdlib -nodefaultlibs  -Wno-builtin-declaration-mismatch
+ifndef VC_LIB_DIRS
 
-# set minimum version to NT 3.1
-CFLAGS += -Wl,--major-subsystem-version,3 -Wl,--minor-subsystem-version,10
-CFLAGS += -Wl,--major-os-version,3 -Wl,--minor-os-version,10 
+ERROR_AND_QUIT_BEFORE_INC=1
+$(warning VC_LIB_DIRS is not set. set in environment or in user.mk)
+$(warning example: [/LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib"  /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86"])
 
-# defines
-CFLAGS += -D_WIN32_WINNT=0x0310 -DWINVER=0x0310 -D_MSC_VER=900
-
-# linker libs
-LDLIBS = 
-
-# C runtime
-ifndef CRT
-	CRT=LIBC
 endif
 
-ifeq ($(CRT),MSVCRT)
-LDLIBS += -lmsvcrt 
-else ifeq ($(CRT),LIBC)
-LDLIBS += -static -llibcmt 
+
+
+ifdef ERROR_AND_QUIT_BEFORE_INC
+$(error error occurred, exiting...)
 endif
 
-# libraries
-LDLIBS += -lComdlg32 -luser32 -lkernel32 -lgdi32
+#
+# okay sanity checks over
+#
+
+TARGET  ?= dependsnt.exe
 
 
 
-#source files
-SOURCE_FILES = src/main.c src/ImageRvaToVa.c src/parser.c src/debug.c src/fileio.c src/mainwindow.c
 
-#build
+.PHONY: clean libs
 
-all: dependsnt.exe
+all: libs $(TARGET)
 
-dependsnt.exe:  $(SOURCE_FILES)
-	$(CC) $(SOURCE_FILES) $(CFLAGS) -I$(INC_DIRS) -Iinc -L$(LIB_DIRS) $(LDLIBS) -o dependsnt.exe
+clean: cleanlibs cleanexe
 
-clean:
-	rm -f dependsnt.exe
+
+
+include libs.mk
+include clang.mk
