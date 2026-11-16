@@ -45,8 +45,10 @@ all: libs $(TARGET)
 clean: cleanlibs cleanexe
 
 
-
+ifndef CLANG
 GCC=1
+endif
+
 #GNU_DLLTOOL
 include libs.mk
 include dependsnt.mk
