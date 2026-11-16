@@ -20,6 +20,35 @@ BOOL  bShowOnlyMissing = FALSE;
 IMPORT_LIST lstImports = {0};
 
 
+LRESULT CALLBACK WndProc(
+                HWND hWnd,         // window handle
+                UINT message,      // type of message
+                WPARAM uParam,     // additional information
+                LPARAM lParam);
+
+
+VOID RegisterMainWindowClass() {
+        WNDCLASS  wc;
+
+        // Fill in window class structure with parameters that describe the
+        // main window.
+
+        wc.style         = CS_HREDRAW | CS_VREDRAW;// Class style(s).
+        wc.lpfnWndProc   = (WNDPROC)WndProc;       // Window Procedure
+        wc.cbClsExtra    = 0;                      // No per-class extra data.
+        wc.cbWndExtra    = 0;                      // No per-window extra data.
+        wc.hInstance     = GetModuleHandle(NULL);              // Owner of this class
+        wc.hIcon         = LoadIcon (GetModuleHandle(NULL), "appicon.ico"); // Icon name from .RC
+        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);// Cursor
+        wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);// Default color
+        //wc.lpszMenuName  = wndclassMain;              // Menu name from .RC
+        wc.lpszClassName = wndclassMain;              // Name to register as
+
+        // Register the window class and return success/failure code.
+        RegisterClass(&wc);
+}
+
+
 VOID RefreshImportDisplay() {
         CHAR szBuffer[256] = {0};
 
@@ -119,7 +148,7 @@ LRESULT CALLBACK WndProc(
 
                         // LOWORD(wParam) contains the ID of the clicked menu item
                         switch (LOWORD(wParam)) {
-                                case ID_FILE_OPEN:
+                                case IDM_FILE_OPEN:
                                         fileName.lStructSize = sizeof(fileName);
                                         fileName.hwndOwner = hWnd;
                                         fileName.hInstance = NULL;
@@ -203,8 +232,11 @@ LRESULT CALLBACK WndProc(
 
                                         break;
 
-                                case ID_FILE_EXIT:
+                                case IDM_FILE_EXIT:
                                         DestroyWindow(hWnd);
+                                        break;
+                                case IDM_ABOUT:
+                                        ShowWindow(hwndAbout, SW_SHOW);
                                         break;
                                 case IDC_TOGGLE_ONLYMISSING:
                                         if (HIWORD(wParam) == BN_CLICKED) {
@@ -215,12 +247,8 @@ LRESULT CALLBACK WndProc(
                         }
 			break;
 		case WM_CREATE :
-                        //
-                        // Create the font
-                        //
-                        HFONT hFont = CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
-                              OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
-                              DEFAULT_PITCH | FF_DONTCARE, "Courier New");
+
+                        CreateFonts();
 
                         //
                         // Create the menu bar
@@ -231,12 +259,14 @@ LRESULT CALLBACK WndProc(
                         // File popup menu
                         hFileMenu = CreatePopupMenu();
                         if (hFileMenu == NULL) { ExitWithLastError("Failed to create file popup menu.");}
-                        AppendMenu(hFileMenu, MF_STRING, ID_FILE_OPEN, "&Open");
-                        AppendMenu(hFileMenu, MF_STRING, ID_FILE_EXIT, "E&xit");
+                        AppendMenu(hFileMenu, MF_STRING, IDM_FILE_OPEN, "&Open");
+                        AppendMenu(hFileMenu, MF_STRING, IDM_FILE_EXIT, "E&xit");
 
                         // Append Entries to main menu
 			bSuccess = AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu,"&File");
 			if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
+                        bSuccess = AppendMenu(hMenu, MF_STRING, IDM_ABOUT,"&About");
+                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu About.");
 
                         // Set the menu
                         if (!SetMenu(hWnd,hMenu)) 
@@ -244,7 +274,7 @@ LRESULT CALLBACK WndProc(
 
                         // Create the list
                         GetClientRect (hWnd, &rect);
-                        hwndListbox = CreateWindow(
+                        hwndListbox = CreateWindowA(
                                 "LISTBOX",
                                 "",
                                 WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | LBS_USETABSTOPS ,
@@ -263,7 +293,7 @@ LRESULT CALLBACK WndProc(
 
                         // Check check button
                         GetClientRect (hWnd, &rect);
-                        hwndToggleMissingOnly = CreateWindow(
+                        hwndToggleMissingOnly = CreateWindowA(
                                 "BUTTON",
                                 "Only Show Missing",
                                 WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX ,
@@ -280,11 +310,27 @@ LRESULT CALLBACK WndProc(
 
                         UpdateWindow(hwndToggleMissingOnly);
 
+                        hwndAbout = CreateWindowA(
+                                wndclassAbout,
+                                "About DependsNT",
+                                WS_POPUP | WS_CAPTION,
+                                 100,
+                                 100,
+                                 300,
+                                 300,
+                                hWnd,
+                                NULL,
+                                GetModuleHandle(NULL),
+                                NULL
+                        );
+                        if (hwndAbout == NULL) ExitWithLastError("Failed to create About Menu.");
+
                         //
                         // set font
                         //
                         SendMessage(hwndListbox, WM_SETFONT, (UINT)hFont, TRUE);
                         SendMessage(hwndToggleMissingOnly, WM_SETFONT, (UINT)hFont, TRUE);
+                        SendMessage(hwndAbout, WM_SETFONT, (UINT)hFont, TRUE);
 
 			break;
 
@@ -299,6 +345,16 @@ LRESULT CALLBACK WndProc(
                             rect.right, max(rect.bottom - 100, 0),        // New width and height
                             SWP_NOMOVE | SWP_NOZORDER
                         );
+                        SetWindowPos(
+                            hwndToggleMissingOnly, 
+                            NULL, 
+                                 0,
+                                max(rect.bottom - 100, 0),
+                                rect.right,
+                                25,
+                             SWP_NOZORDER
+                        );
+                        UpdateWindow(hwndToggleMissingOnly);
                         break;
                 case WM_PAINT :
 			hdc = BeginPaint (hWnd, &ps) ;

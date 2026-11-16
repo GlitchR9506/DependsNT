@@ -386,7 +386,7 @@ KillSystemTimer
 KillTimer
 LoadAcceleratorsA
 LoadAcceleratorsW
-LoadBitmapA
+LoadBitmapA@8
 LoadBitmapW
 LoadCursorA@8 = LoadCursorA
 LoadCursorFromFileA

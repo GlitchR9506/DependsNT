@@ -11,7 +11,7 @@ AnimatePalette
 Arc
 ArcTo
 BeginPath
-BitBlt
+BitBlt@36
 CancelDC
 CheckColorsInGamut
 ChoosePixelFormat
@@ -32,7 +32,7 @@ CreateBrushIndirect
 CreateColorSpaceA
 CreateColorSpaceW
 CreateCompatibleBitmap
-CreateCompatibleDC
+CreateCompatibleDC@4
 CreateDCA
 CreateDCW
 CreateDIBPatternBrush
@@ -68,7 +68,7 @@ CreateScalableFontResourceW
 CreateSolidBrush
 DPtoLP
 DeleteColorSpace
-DeleteDC
+DeleteDC@4
 DeleteEnhMetaFile
 DeleteMetaFile
 DeleteObject
@@ -235,7 +235,7 @@ GetMetaRgn
 GetMiterLimit
 GetNearestColor
 GetNearestPaletteIndex
-GetObjectA
+GetObjectA@12
 GetObjectType
 GetObjectW
 GetOutlineTextMetricsA
@@ -331,7 +331,7 @@ SelectBrushLocal
 SelectClipPath
 SelectClipRgn
 SelectFontLocal
-SelectObject
+SelectObject@8
 SelectPalette
 SetAbortProc
 SetArcDirection

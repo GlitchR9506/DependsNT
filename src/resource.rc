@@ -1,5 +1,8 @@
 #include <winver.h>
+#include "resource.h"
 
+IDB_MIKU BITMAP "miku.bmp"
+//IDB_GIF RCDATA "test.gif"
 IDI_APPICON ICON "appicon.ico"
 
 VS_VERSION_INFO VERSIONINFO

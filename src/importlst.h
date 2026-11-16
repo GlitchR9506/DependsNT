@@ -4,6 +4,8 @@
 #include <windows.h>
 #include <c_vector/vector.h>
 
+#include "resource.h"
+
 PVOID ImageRvaToVa(
     PIMAGE_NT_HEADERS NtHeaders,
     PVOID Base,
@@ -15,10 +17,6 @@ VOID ExitWithMessage(LPCSTR szInfo);
 VOID ExitWithLastError(LPCSTR szInfo) ;
 
 VOID ThrowError(LPCSTR szInfo);
-
-#define ID_FILE_OPEN  1001
-#define ID_FILE_EXIT  1002
-#define IDC_TOGGLE_ONLYMISSING 2000
 
 typedef UINT UINT_PTR;
 
@@ -50,7 +48,16 @@ LONG ReadImports(PVOID pBaseAddress, PIMPORT_LIST pImportList) ;
 
 
 extern HWND hwndMain;
+extern HWND hwndAbout;
 
+VOID RegisterMainWindowClass();
+VOID RegisterAboutMenuClass();
 
+extern char wndclassMain[];
+extern char wndclassAbout[]; 
+
+extern HFONT hFont;
+extern HFONT hFontSmall;
+VOID CreateFonts();
 
 #endif

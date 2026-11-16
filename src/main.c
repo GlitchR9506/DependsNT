@@ -5,15 +5,12 @@
 #include <stdio.h>
 #include "importlst.h"
 
-char szAppName[] = "Depends31";   // The name of this application
+HFONT hFont = NULL;
+HFONT hFontSmall = NULL;
+
 char szTitle[]   = "Dependency Walker for NT 3.1"; // The title bar text
-
-
-LRESULT CALLBACK WndProc(
-                HWND hWnd,         // window handle
-                UINT message,      // type of message
-                WPARAM uParam,     // additional information
-                LPARAM lParam);
+char wndclassMain[] = "DependsNT";   // The name of this application
+char wndclassAbout[] = "DependsNT_About";
 				
 /****************************************************************************
 
@@ -46,27 +43,12 @@ int APIENTRY WinMain(
 {
 
         MSG msg;
-        WNDCLASS  wc;
 
-        // Fill in window class structure with parameters that describe the
-        // main window.
-
-        wc.style         = CS_HREDRAW | CS_VREDRAW;// Class style(s).
-        wc.lpfnWndProc   = (WNDPROC)WndProc;       // Window Procedure
-        wc.cbClsExtra    = 0;                      // No per-class extra data.
-        wc.cbWndExtra    = 0;                      // No per-window extra data.
-        wc.hInstance     = hInstance;              // Owner of this class
-        wc.hIcon         = LoadIcon (hInstance, szAppName); // Icon name from .RC
-        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);// Cursor
-        wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);// Default color
-        wc.lpszMenuName  = szAppName;              // Menu name from .RC
-        wc.lpszClassName = szAppName;              // Name to register as
-
-        // Register the window class and return success/failure code.
-        RegisterClass(&wc);
+        RegisterMainWindowClass();
+        RegisterAboutMenuClass();
 		
         hwndMain = CreateWindow(
-                szAppName,           // See RegisterClass() call.
+                wndclassMain,           // See RegisterClass() call.
                 szTitle,             // Text for window title bar.
                 WS_OVERLAPPEDWINDOW,// Window style.
                 CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, // Use default positioning
@@ -81,10 +63,14 @@ int APIENTRY WinMain(
                 ExitWithLastError("Failed to create Main window.");
         }
 
+        CreateFonts();
+
         // Make the window visible; update its client area; and return "success"
         ShowWindow(hwndMain, nCmdShow); // Show the window
         UpdateWindow(hwndMain);         // Sends WM_PAINT message
 		
+
+
 
         /* Acquire and dispatch messages until a WM_QUIT message is received. */
 
@@ -101,4 +87,16 @@ int APIENTRY WinMain(
         return (msg.wParam); // Returns the value from PostQuitMessage
 
         lpCmdLine; // This will prevent 'unused formal parameter' warnings
+}
+VOID CreateFonts() {
+        //
+        // Create the font
+        //
+        hFont = CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
+              OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
+              DEFAULT_PITCH | FF_DONTCARE, "Courier New");
+
+        hFontSmall = CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
+              OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
+              DEFAULT_PITCH | FF_DONTCARE, "Courier New");
 }

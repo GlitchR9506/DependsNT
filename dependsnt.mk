@@ -145,7 +145,7 @@ endif
 
 
 #source files
-SRCS    = src/main.c src/ImageRvaToVa.c src/parser.c src/debug.c src/fileio.c src/mainwindow.c src/crtstartup.c
+SRCS    = src/main.c src/ImageRvaToVa.c src/parser.c src/debug.c src/fileio.c src/mainwindow.c src/crtstartup.c src/aboutmenu.c
 
 ifdef GCC
 	OBJS    = $(SRCS:src/%.c=obj/%.a)
@@ -162,7 +162,7 @@ else
 endif
 
 
-$(TARGET):  $(OBJS)
+$(TARGET):  $(OBJS) res
 	$(LD) $(LDFLAGS) $(LIB_DIRS) $(RESOURCEFILE) $(OBJS) $(LDLIBS) $(OUT_FLAG)dependsnt.exe
 ifdef GCC
 obj/%.a: src/%.c
