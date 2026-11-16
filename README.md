@@ -14,7 +14,9 @@ Lists all imports of a PE executable
 
 Can toggle showing only missing exports
 
+<img width="1188" height="833" alt="image" src="https://github.com/user-attachments/assets/9a144170-c298-4d4b-9339-c37b51f50faf" />
 
+thats it, no dynamic stuff or anything.
 
 
 
