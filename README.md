@@ -7,7 +7,7 @@ This is a (simple) alternative. should run on any Windows NT
 
 I used the https://github.com/NickHackman/C_Vector library in my code, see `inc\vector_c\vector.h` from `src\vector.h`
 
-# Ino
+# Info
 Runs on any version of Windows NT, NT 3.10 thru Windows 11
 
 Lists all imports of a PE executable
@@ -55,6 +55,7 @@ the main program is then built
 
 
 # Structure
+(todo: update this)
 ```
 ./inc/
      /c_vector/      - see @ https://github.com/NickHackman/C_Vector/tree/master/src [MIT license]
