@@ -583,12 +583,9 @@ LRESULT CALLBACK WndProc(
                         // Append the submenus to the menu bar
                         //
                         if (!AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu,"&File")) ExitWithLastError("Menu creation failed, AppendMenu File.");
-                        if (!AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hThemeMenu,"&Themes")) ExitWithLastError("Menu creation failed, AppendMenu File.");
-                        if (!AppendMenu(hMenu, MF_STRING, IDM_ABOUT,"&About"))         ExitWithLastError("Menu creation failed, AppendMenu File.");
+                        if (!AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hThemeMenu,"&Themes")) ExitWithLastError("Menu creation failed, AppendMenu Themes.");
+                        if (!AppendMenu(hMenu, MF_STRING, IDM_ABOUT,"&About"))         ExitWithLastError("Menu creation failed, AppendMenu About.");
 
-                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
-                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
-                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu About.");
 
                         //
                         // Set the menu as this window's menu
