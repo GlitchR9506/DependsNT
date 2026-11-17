@@ -88,15 +88,3 @@ int APIENTRY WinMain(
 
         lpCmdLine; // This will prevent 'unused formal parameter' warnings
 }
-VOID CreateFonts() {
-        //
-        // Create the font
-        //
-        hFont = CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
-              OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
-              DEFAULT_PITCH | FF_DONTCARE, "Courier New");
-
-        hFontSmall = CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
-              OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
-              DEFAULT_PITCH | FF_DONTCARE, "Courier New");
-}

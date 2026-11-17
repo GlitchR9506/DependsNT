@@ -100,10 +100,12 @@ LRESULT CALLBACK procAbout(
         case WM_PAINT :
             RECT rcText = {0};
             GetClientRect (hWnd, &rect);
+            hdc = BeginPaint (hWnd, &ps);
+            FillRect(hdc,&rect,pAppTheme->brushBackground);
             GetClientRect (hWnd, &rcText);
 
-			hdc = BeginPaint (hWnd, &ps);
 			HFONT oldFont = SelectObject(hdc, hFontSmall);
+                                        SetBkMode(hdc, TRANSPARENT);
             DrawText (hdc, "DependsNT", -1, &rcText,DT_SINGLELINE | DT_CENTER);
             rcText.top+=20;rcText.bottom-=40;
             DrawText (hdc, "Dependency Walker for Windows NT3.1 and above.\r\nBy GlitchR9506", -1, &rcText,DT_LEFT | DT_WORDBREAK);

@@ -24,7 +24,7 @@ CFLAGS =
 ifdef GCC
 	CFLAGS +=  -Wno-unused-value -Wno-ignored-pragma-intrinsic -Wno-missing-prototype-for-cc
 else
-	CFLAGS += -v 
+	CFLAGS +=  -Werror=incompatible-pointer-types -Wno-ignored-pragma-intrinsic  -Wno-missing-prototype-for-cc
 endif
 
 
@@ -133,7 +133,7 @@ endif
 # libraries
 #
 
-WIN32_LIBS = Comdlg32 user32 kernel32 gdi32 crtdll
+WIN32_LIBS = Comdlg32 user32 kernel32 gdi32 crtdll advapi32
 
 # libraries
 ifdef GCC
@@ -145,7 +145,7 @@ endif
 
 
 #source files
-SRCS    = src/main.c src/ImageRvaToVa.c src/parser.c src/debug.c src/fileio.c src/mainwindow.c src/crtstartup.c src/aboutmenu.c
+SRCS    = src/main.c src/ImageRvaToVa.c src/parser.c src/debug.c src/fileio.c src/mainwindow.c src/crtstartup.c src/aboutmenu.c src/theme.c
 
 ifdef GCC
 	OBJS    = $(SRCS:src/%.c=obj/%.a)
@@ -171,5 +171,5 @@ obj/%.obj: src/%.c
 endif
 	$(CC)  $(INC_DIRS) -Iinc $(DEFINES) $(CFLAGS)  $< -o $@ 
 
-cleanexe:
+cleanexe: src/importlst.h
 	rm -f $(OBJS) $(TARGET)

@@ -1,5 +1,7 @@
+#define STRICT
 #include <windows.h>   // required for all Windows applications
 #include <stdio.h>
+#include <windowsx.h>
 #include "importlst.h"
 
 
@@ -7,9 +9,15 @@
 HWND hwndMain;
 HWND hwndListbox;
 HWND hwndToggleMissingOnly;
+HWND hwndTopbar;
+HWND hwndBottombar;
+const INT heightTopbar = 18; 
+const INT heightBottombar = 18;
+
 
 HMENU hMenu = NULL;
 HMENU hFileMenu = NULL;
+HMENU hThemeMenu = NULL;
 
 CHAR  sz_filterExecutableFiles[] = "Executable Files\0*.EXE;*.DLL\0";
 CHAR  szFilePathBuffer[MAX_PATH] = {0};
@@ -57,7 +65,8 @@ VOID RefreshImportDisplay() {
 
         SendMessage(hwndListbox, LB_RESETCONTENT, 0, 0); 
 
-        SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szFilePathBuffer);
+        //SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szFilePathBuffer);
+        SetWindowText(hwndTopbar, szFilePathBuffer);
         SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)"[ ] == OK; [M] == MISSING");
 
 
@@ -66,6 +75,7 @@ VOID RefreshImportDisplay() {
                 sprintf(szBuffer, "%s\t%s",lstImports.arrImportedDLLs[i].szName, bFoundDLL ? "" : "MISSING");
                 SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szBuffer);
 
+                if (lstImports.arrImportedDLLs[i].bHideInUI) continue;
                 for (int j = 0; j < lstImports.arrImportedDLLs[i].nImports; j++) {
                         BOOL bFoundImport = lstImports.arrImportedDLLs[i].arrImports[j].bFound;
                         if (bShowOnlyMissing == FALSE || bFoundImport == FALSE) {
@@ -130,6 +140,101 @@ VOID ParseFileAndDisplay(LPCSTR szFilePath) {
 
 ****************************************************************************/
 
+
+
+
+//ULONG lastClick = 0;
+//WNDPROC g_OrigListBoxProc = NULL;
+//LRESULT CALLBACK ListBoxSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+//{
+//    if (msg == WM_ERASEBKGND)
+//    {
+        //HDC hdc = (HDC)wParam;
+        //RECT rc;
+        //GetClientRect(hwnd, &rc);
+        //FillRect(hdc, &rc, pAppTheme->brushBackground); // Pass g_hEmptyBgBrush as dwRefData
+        //return 1; // Tell Windows the background was erased
+ //   }       
+ //   if (msg == WM_PAINT)
+ //   {
+            //PAINTSTRUCT ps;
+            //HDC hdc = BeginPaint(hwnd, &ps);
+            //FillRect(hdc, &ps.rcPaint, pAppTheme->brushBackground);
+            //EndPaint(hwnd, &ps);
+            //return 0;
+//    }
+    
+//    return CallWindowProc(g_OrigListBoxProc, hwnd, msg, wParam, lParam);
+//}
+
+
+VOID DNT_DrawEdge(HDC hdc, PRECT pRect, HBRUSH brushBackground, HPEN hPenTopLeft, HPEN hPenBottomRight) {
+        if (pRect == NULL) {return;};
+
+        HGDIOBJ oldPen = SelectObject(hdc, hPenTopLeft);
+
+        if (brushBackground != NULL) {
+                FillRect(hdc, pRect,brushBackground);
+        }
+
+        MoveToEx(hdc, pRect->left,pRect->bottom -1, NULL);
+        LineTo(hdc,pRect->left,pRect->top);
+        LineTo(hdc,pRect->right -1, pRect->top);
+
+
+        SelectObject(hdc, hPenBottomRight);
+        MoveToEx(hdc,pRect->right -1, pRect->top, NULL);
+        LineTo(hdc,pRect->right-1,pRect->bottom-1);
+        LineTo(hdc,pRect->left-1,pRect->bottom-1);
+
+        SelectObject(hdc, oldPen);
+}
+
+VOID DNT_DrawButton(HDC hdc, PRECT pRect, BOOL bActive) {
+        HPEN hPenTopLeft     = bActive ? pAppTheme->hPenShadow : pAppTheme->hPenHighlight;
+        HPEN hPenBottomRight = bActive ? pAppTheme->hPenHighlight : pAppTheme->hPenShadow;
+        HBRUSH hBrushBackground = bActive ? pAppTheme->brushButtonInside_Active : pAppTheme->brushButtonInside_Inactive;
+
+        DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+        InflateRect(pRect, -1, -1);
+        DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+}
+
+VOID DNT_DrawDropdownIcon(HDC hdc, PRECT pRect, BOOL bActive) {
+
+
+        //HPEN hPenTopLeft     = bActive ? pAppTheme->hPenShadow : pAppTheme->hPenHighlight;
+        //HPEN hPenBottomRight = bActive ? pAppTheme->hPenHighlight : pAppTheme->hPenShadow;
+        //HBRUSH hBrushBackground = bActive ? pAppTheme->brushButtonInside_Active : pAppTheme->brushButtonInside_Inactive;
+
+
+        POINT ptActive[3] = {
+                {pRect->left+(pRect->right - pRect->left)/2, pRect->bottom},
+                {pRect->left, pRect->top},
+                {pRect->right, pRect->top}
+        };
+        POINT ptInactive[3] = {
+                {pRect->left, pRect->top},
+                {pRect->left, pRect->bottom},
+                {pRect->right, pRect->top + (pRect->bottom - pRect->top)/2}
+        };
+
+        HGDIOBJ oldPen = SelectObject(hdc, bActive ? pAppTheme->hPenShadow : pAppTheme->hPenHighlight);
+        HGDIOBJ oldBrush = SelectObject(hdc, bActive ? pAppTheme->brushButtonInside_Active : pAppTheme->brushButtonInside_Inactive);
+
+        Polygon(hdc, bActive ? ptActive : ptInactive, 3); // Draws and fills the triangle
+
+        SelectObject(hdc, oldPen);
+        SelectObject(hdc, oldBrush);
+
+
+
+
+        //DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+        //InflateRect(pRect, -1, -1);
+        //DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+}
+
 LRESULT CALLBACK WndProc(
                 HWND hWnd,         // window handle
                 UINT message,      // type of message
@@ -144,10 +249,153 @@ LRESULT CALLBACK WndProc(
 
         switch (message) {
 
-                case WM_COMMAND:  // message: command from application menu
+                //case WM_MESSUREITEM:
+                        //LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT)lParam;
+                        //switch (lpmis->CtrID) {
+                        //        case IDC_IMPORTLIST:
+                        //                break;
+                        //}
+                        //break;
+                case WM_CTLCOLORSTATIC: {
+                        HDC hdcStatic = (HDC)wParam;
+                        switch(GetDlgCtrlID((HWND)lParam)) {
+                                case IDC_TOPBAR: {
 
+                                        HDC hdc = (HDC)wParam;
+                                        SetTextColor(hdc, pAppTheme->colorTopBarText); 
+                                        SetBkMode(hdc, TRANSPARENT);
+                                        return (LRESULT)pAppTheme->brushBackground;
+                                        break;}
+                                case IDC_BOTTOMBAR: {
+                                        HDC hdc = (HDC)wParam;
+                                        SetTextColor(hdc, pAppTheme->colorTopBarText); 
+                                        SetBkMode(hdc, TRANSPARENT);
+                                        return (LRESULT)pAppTheme->brushBackground;
+                                        break;}
+                        }
+                        break;
+                }/*
+                case WM_CTLCOLORBTN:
+                        switch(GetDlgCtrlID((HWND)lParam)) {
+                                case IDC_TOGGLE_ONLYMISSING:
+
+                                        HDC hdc = (HDC)wParam;
+                                        SetTextColor(hdc, RGB(255, 255, 255));
+                                        SetBkMode(hdc, TRANSPARENT);
+                                        return (LRESULT)brushBG;
+                                        break;
+                        } */
+                case WM_CTLCOLORLISTBOX: {
+                        HDC hdcListBox = (HDC)wParam;
+                        HWND hwndListBox = (HWND)lParam;
+                        switch (GetDlgCtrlID(hwndListBox)) {
+                                case IDC_IMPORTLIST: {
+                                        SetBkColor(hdcListBox, pAppTheme->colorBackground);
+                                        return (LRESULT)pAppTheme->brushBackground;
+                                }
+                        break;
+                        }
+                }
+                case WM_DRAWITEM:
+                        LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lParam;
+                        switch (lpdis->CtlID) {
+                                case IDC_IMPORTLIST:
+
+                                        COLORREF colorBG =   lpdis->itemID % 2 ? pAppTheme->colorEvenItem : pAppTheme->colorOddItem;
+                                        COLORREF colorText =  pAppTheme->colorItemText;
+                                        CHAR szBuffer[256] = {0};
+                                        SendMessage(lpdis->hwndItem,LB_GETTEXT,lpdis->itemID,(LPARAM)szBuffer);
+
+                                        BOOL bIsDLL = strchr(szBuffer, '.') != NULL;
+
+                                        if (bIsDLL) {
+                                                colorBG = pAppTheme->colorImportantItem;
+                                                colorText = pAppTheme->colorImportantItemText;
+                                        }
+                                        if (strstr(szBuffer,"[M]") != NULL) {
+                                                colorBG = pAppTheme->colorItemMissing;
+                                                colorText = pAppTheme->colorItemMissingText;
+                                                if (strchr(szBuffer, ';') != NULL) {
+                                                        colorBG = pAppTheme->colorItemInfo;
+                                                        colorText = pAppTheme->colorItemInfoText;
+
+                                                }
+                                        }
+
+                                        HBRUSH hBrush = CreateSolidBrush(colorBG);
+                                        FillRect(lpdis->hDC, &lpdis->rcItem,hBrush);
+                                        DeleteObject(hBrush);
+
+                                        if (bIsDLL) {
+                                                BOOL bIsHidden;
+                                                RECT rcIcon = lpdis->rcItem;
+                                                for (int i = 0; i < lstImports.nImportedDLLs;i++) {
+                                                        if (strstr(szBuffer,lstImports.arrImportedDLLs[i].szName) != NULL) {
+                                                                bIsHidden = lstImports.arrImportedDLLs[i].bHideInUI;
+                                                                break;
+                                                        }
+                                                }
+                                                rcIcon.left += 3;
+                                                rcIcon.right = rcIcon.left + 10;
+                                                rcIcon.top += 3;
+                                                rcIcon.bottom = rcIcon.top + 10;
+                                                DNT_DrawDropdownIcon(lpdis->hDC, &rcIcon, !bIsHidden);
+                                        }
+
+
+                                        SetBkMode(lpdis->hDC, TRANSPARENT);
+                                        SetTextColor(lpdis->hDC, colorText);
+
+                                        RECT rcText = lpdis->rcItem;
+                                        rcText.left += 16;
+                                        DrawText(lpdis->hDC, szBuffer, -1, &rcText, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+
+
+
+                                        break;
+                                case IDC_TOGGLE_ONLYMISSING: {
+
+                                        CHAR szBuffer[256] = {0};
+                                        GetWindowText(lpdis->hwndItem,szBuffer,255);
+
+                                        FillRect(lpdis->hDC, &lpdis->rcItem,pAppTheme->brushBackground);
+
+                                        SetBkMode(lpdis->hDC, TRANSPARENT);
+                                        SetTextColor(lpdis->hDC, pAppTheme->colorButtonText);
+
+                                        RECT rcText = lpdis->rcItem;
+                                        rcText.left += 30;
+                                        DrawText(lpdis->hDC, szBuffer, -1, &rcText, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+
+
+                                        RECT rcCheckbox = lpdis->rcItem;
+                                        rcCheckbox.left += 6;
+                                        rcCheckbox.top += (lpdis->rcItem.bottom-24)/2+1;
+                                        rcCheckbox.right = 24;
+                                        rcCheckbox.bottom = 24;
+
+                                        //FrameRect(lpdis->hDC, &rcCheckbox,bShowOnlyMissing ? pAppTheme->colorOddItem : pAppTheme->colorEvenItem);
+
+
+                                        DNT_DrawButton(lpdis->hDC, &rcCheckbox, bShowOnlyMissing);
+
+                                        //UINT edge = (lpdis->itemState & ODS_SELECTED) ? EDGE_SUNKEN : EDGE_RAISED;
+                                        //DrawEdge(lpdis->hDC, &lpdis->rcItem, edge, BF_RECT);
+
+                                        break;}
+                        }
+                        break;
+
+                case WM_COMMAND:  // message: command from application menu
+                        if (LOWORD(wParam) >= IDM_THEMELIST && LOWORD(wParam) <= IDM_THEMLISTEND) {
+                                SetThemeIndex(LOWORD(wParam) - IDM_THEMELIST);
+                                InvalidateRect(hWnd, NULL, TRUE);
+                                UpdateWindow(hWnd);
+                                break;
+                        }
                         // LOWORD(wParam) contains the ID of the clicked menu item
                         switch (LOWORD(wParam)) {
+
                                 case IDM_FILE_OPEN:
                                         fileName.lStructSize = sizeof(fileName);
                                         fileName.hwndOwner = hWnd;
@@ -238,52 +486,138 @@ LRESULT CALLBACK WndProc(
                                 case IDM_ABOUT:
                                         ShowWindow(hwndAbout, SW_SHOW);
                                         break;
+                                case IDC_IMPORTLIST:
+                                        if (HIWORD(wParam) ==  LBN_SELCHANGE) {
+                                                HWND hImportList = (HWND)lParam;
+                                                UINT index = (UINT)SendMessage(hImportList, LB_GETCURSEL, 0, 0);
+
+
+                                                CHAR szBuffer[256] = {0};
+                                                SendMessage(hImportList,LB_GETTEXT,index,(LPARAM)szBuffer);
+
+
+
+                                                if (strchr(szBuffer, '.') == NULL) { break;}
+
+                                                for (int i = 0; i < lstImports.nImportedDLLs;i++) {
+                                                        if (strstr(szBuffer,lstImports.arrImportedDLLs[i].szName) != NULL) {
+                                                                lstImports.arrImportedDLLs[i].bHideInUI = !lstImports.arrImportedDLLs[i].bHideInUI;
+                                                                RefreshImportDisplay();
+                                                                break;
+                                                        }
+                                                }
+                                        }
+                                        break;
                                 case IDC_TOGGLE_ONLYMISSING:
                                         if (HIWORD(wParam) == BN_CLICKED) {
-                                                bShowOnlyMissing = IsDlgButtonChecked(hWnd, IDC_TOGGLE_ONLYMISSING);
+                                                //ULONG now = GetTickCount();
+                                                //if (now - lastClick < 50) break;
+                                                bShowOnlyMissing = !bShowOnlyMissing;//IsDlgButtonChecked(hWnd, IDC_TOGGLE_ONLYMISSING);
+                                                SendMessage(hwndToggleMissingOnly, BM_SETSTATE, (UINT)bShowOnlyMissing, 0);
+                                                InvalidateRect(hwndToggleMissingOnly, NULL, TRUE);
+                                                UpdateWindow(hwndToggleMissingOnly);
+                                                //ThrowError("aa");
+                                                //lastClick = now;
                                         }
+
                                         RefreshImportDisplay();
+
                                         break;
                         }
 			break;
 		case WM_CREATE :
+                        //=========================================================================================
+                        //
+                        //
+                        // MISC. EXTERNAL FUNCTIONS
+                        //
+                        //
+                        //=========================================================================================
 
+                        //
+                        // Init Themes
+                        //
+                        InitAppThemes();
+
+                        //
+                        // Create fonts
+                        //
                         CreateFonts();
+
+
+
+                        //=========================================================================================
+                        //
+                        //
+                        // MENUS
+                        //
+                        //
+                        //=========================================================================================
+
 
                         //
                         // Create the menu bar
                         //
-                        hMenu = CreateMenu();
-                        if (hMenu == NULL) { ExitWithLastError("Failed to create menu.");}
+                        hMenu      = CreateMenu();
+                        hFileMenu  = CreatePopupMenu();
+                        hThemeMenu = CreatePopupMenu();
 
-                        // File popup menu
-                        hFileMenu = CreatePopupMenu();
+                        if (hMenu == NULL) { ExitWithLastError("Failed to create menu.");}
                         if (hFileMenu == NULL) { ExitWithLastError("Failed to create file popup menu.");}
+                        if (hThemeMenu == NULL) { ExitWithLastError("Failed to create theme menu.");}
+
+                        //
+                        // hFileMenu
+                        //
+
                         AppendMenu(hFileMenu, MF_STRING, IDM_FILE_OPEN, "&Open");
                         AppendMenu(hFileMenu, MF_STRING, IDM_FILE_EXIT, "E&xit");
 
-                        // Append Entries to main menu
-			bSuccess = AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu,"&File");
-			if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
-                        bSuccess = AppendMenu(hMenu, MF_STRING, IDM_ABOUT,"&About");
+                        //
+                        // hThemeMenu
+                        //
+
+                        UpdateThemeMenu(hThemeMenu);
+
+                        //
+                        // Append the submenus to the menu bar
+                        //
+                        if (!AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu,"&File")) ExitWithLastError("Menu creation failed, AppendMenu File.");
+                        if (!AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hThemeMenu,"&Themes")) ExitWithLastError("Menu creation failed, AppendMenu File.");
+                        if (!AppendMenu(hMenu, MF_STRING, IDM_ABOUT,"&About"))         ExitWithLastError("Menu creation failed, AppendMenu File.");
+
+                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
+                        if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu File.");
                         if (bSuccess == FALSE) ExitWithLastError("Menu creation failed, AppendMenu About.");
 
-                        // Set the menu
-                        if (!SetMenu(hWnd,hMenu)) 
+                        //
+                        // Set the menu as this window's menu
+                        //
+
+                        if (!SetMenu(hWnd,hMenu)) {
                                 ExitWithLastError("Failed to attach menu to window.");
+                        }
+
+                        //=========================================================================================
+                        //
+                        //
+                        // CHILD WINDOWS
+                        //
+                        //
+                        //=========================================================================================
 
                         // Create the list
                         GetClientRect (hWnd, &rect);
                         hwndListbox = CreateWindowA(
                                 "LISTBOX",
                                 "",
-                                WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | LBS_USETABSTOPS ,
+                                WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | LBS_NOTIFY  | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS,
                                 0,
-                                0,
+                                heightTopbar,
                                 rect.right,
                                 max(rect.bottom - 100, 0),
                                 hWnd,
-                                NULL,
+                                (HMENU)IDC_IMPORTLIST,
                                 GetModuleHandle(NULL),
                                 NULL
                         );
@@ -296,7 +630,7 @@ LRESULT CALLBACK WndProc(
                         hwndToggleMissingOnly = CreateWindowA(
                                 "BUTTON",
                                 "Only Show Missing",
-                                WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX ,
+                                WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
                                 0,
                                 max(rect.bottom - 100, 0),
                                 rect.right,
@@ -308,7 +642,57 @@ LRESULT CALLBACK WndProc(
                         );
                         if (hwndToggleMissingOnly == NULL) ExitWithLastError("Failed to create BUTTON.");
 
+//g_OrigListBoxProc = SubclassWindow(hwndToggleMissingOnly, (LONG)ListBoxSubclassProc);
                         UpdateWindow(hwndToggleMissingOnly);
+
+                        //=========================================================================================
+                        //
+                        //
+                        // STATIC WINDOWS
+                        //
+                        //
+                        //=========================================================================================
+
+                        GetClientRect (hWnd, &rect);
+                        hwndTopbar = CreateWindowA(
+                                "STATIC",
+                                "No File Open...",
+                                WS_CHILD | WS_VISIBLE | SS_LEFT,
+                                0,
+                                0,
+                                rect.right,
+                                heightTopbar,
+                                hWnd,
+                                (HMENU)IDC_TOPBAR,
+                                GetModuleHandle(NULL),
+                                NULL
+                        );
+                        if (hwndTopbar == NULL) ExitWithLastError("Failed to create BUTTON.");
+
+                        GetClientRect (hWnd, &rect);
+                        hwndBottombar = CreateWindowA(
+                                "STATIC",
+                                "Dependency Walker for Windows NT 3.1+, v1.1, 2026, GlitchR9506",
+                                WS_CHILD | WS_VISIBLE | SS_LEFT,
+                                0,
+                                rect.bottom - heightBottombar,
+                                rect.right,
+                                heightBottombar,
+                                hWnd,
+                                (HMENU)IDC_BOTTOMBAR,
+                                GetModuleHandle(NULL),
+                                NULL
+                        );
+                        if (hwndBottombar == NULL) ExitWithLastError("Failed to create BUTTON.");
+
+
+                        //=========================================================================================
+                        //
+                        //
+                        // POPUP WINDOWS
+                        //
+                        //
+                        //=========================================================================================
 
                         hwndAbout = CreateWindowA(
                                 wndclassAbout,
@@ -325,12 +709,16 @@ LRESULT CALLBACK WndProc(
                         );
                         if (hwndAbout == NULL) ExitWithLastError("Failed to create About Menu.");
 
+
                         //
                         // set font
                         //
                         SendMessage(hwndListbox, WM_SETFONT, (UINT)hFont, TRUE);
                         SendMessage(hwndToggleMissingOnly, WM_SETFONT, (UINT)hFont, TRUE);
                         SendMessage(hwndAbout, WM_SETFONT, (UINT)hFont, TRUE);
+                        SendMessage(hwndTopbar, WM_SETFONT, (UINT)hFont, TRUE);
+                        SendMessage(hwndBottombar, WM_SETFONT, (UINT)hFont, TRUE);
+
 
 			break;
 
@@ -342,7 +730,7 @@ LRESULT CALLBACK WndProc(
                             hwndListbox, 
                             NULL, 
                             0, 0,           // Ignored due to SWP_NOMOVE
-                            rect.right, max(rect.bottom - 100, 0),        // New width and height
+                            rect.right, max(rect.bottom - 100-heightTopbar, 0),        // New width and height
                             SWP_NOMOVE | SWP_NOZORDER
                         );
                         SetWindowPos(
@@ -354,12 +742,23 @@ LRESULT CALLBACK WndProc(
                                 25,
                              SWP_NOZORDER
                         );
+                        SetWindowPos(
+                                hwndBottombar,
+                                NULL, 
+                                0,
+                                rect.bottom-heightBottombar,
+                                rect.right,
+                                heightBottombar,
+                             SWP_NOZORDER
+                        );
                         UpdateWindow(hwndToggleMissingOnly);
                         break;
                 case WM_PAINT :
-			hdc = BeginPaint (hWnd, &ps) ;
-			GetClientRect (hWnd, &rect) ;
-			DrawText (hdc, "Hello, Windows NT 3.1!", -1, &rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			hdc = BeginPaint (hWnd, &ps);
+			GetClientRect (hWnd, &rect);
+                        FillRect(hdc,&rect,pAppTheme->brushBackground);
+                        rect.bottom = 30;
+			DrawText (hdc, szFilePathBuffer, -1, &rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 			EndPaint (hWnd, &ps); 
 			break;
                 case WM_DESTROY:  // message: window being destroyed

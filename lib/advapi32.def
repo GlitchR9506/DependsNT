@@ -1,0 +1,8 @@
+LIBRARY "advapi32.dll"
+EXPORTS
+
+RegOpenKeyExA@20
+RegQueryValueExA@24
+RegCloseKey@4
+RegCreateKeyExA@36
+RegSetValueExA@24

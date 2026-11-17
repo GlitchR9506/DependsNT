@@ -21,7 +21,7 @@ CallMsgFilter
 CallMsgFilterA
 CallMsgFilterW
 CallNextHookEx
-CallWindowProcA
+CallWindowProcA@20
 CallWindowProcW
 CascadeChildWindows
 CascadeWindows
@@ -134,7 +134,7 @@ DefMDIChildProcW
 DefWindowProcA@16 = DefWindowProcA
 DefWindowProcW
 DeferWindowPos
-DeleteMenu
+DeleteMenu@12
 DeregisterShellHookWindow
 DestroyAcceleratorTable
 DestroyCaret
@@ -163,10 +163,10 @@ DrawAnimatedRects
 DrawCaption
 DrawCaptionTempA
 DrawCaptionTempW
-DrawEdge
+DrawEdge@16
 DrawFocusRect
 DrawFrame
-DrawFrameControl
+DrawFrameControl@16
 DrawIcon
 DrawIconEx
 DrawMenuBar
@@ -207,13 +207,13 @@ EnumWindows
 EqualRect
 ExcludeUpdateRgn
 ExitWindowsEx
-FillRect
+FillRect@12
 FindWindowA
 FindWindowExA
 FindWindowExW
 FindWindowW
 FlashWindow
-FrameRect
+FrameRect@12
 FreeDDElParam
 FullScreenControl
 GetAccCursorInfo
@@ -251,7 +251,7 @@ GetDC
 GetDCEx
 GetDesktopWindow
 GetDialogBaseUnits
-GetDlgCtrlID
+GetDlgCtrlID@4
 GetDlgItem
 GetDlgItemInt
 GetDlgItemTextA
@@ -310,7 +310,7 @@ GetScrollPos
 GetScrollRange
 GetShellWindow
 GetSubMenu
-GetSysColor
+GetSysColor@4
 GetSysColorBrush
 GetSystemMenu
 GetSystemMetrics
@@ -337,7 +337,7 @@ GetWindowModuleFileNameW
 GetWindowPlacement
 GetWindowRect
 GetWindowRgn
-GetWindowTextA
+GetWindowTextA@12
 GetWindowTextLengthA
 GetWindowTextLengthW
 GetWindowTextW
@@ -349,14 +349,14 @@ HideCaret
 HiliteMenuItem
 ImpersonateDdeClientWindow
 InSendMessage
-InflateRect
+InflateRect@12
 InsertMenuA
 InsertMenuItemA
 InsertMenuItemW
 InsertMenuW
 InternalGetWindowText
 IntersectRect
-InvalidateRect
+InvalidateRect@12
 InvalidateRgn
 InvertRect
 IsCharAlphaA
@@ -564,13 +564,13 @@ SetUserObjectInformationW
 SetUserObjectSecurity
 SetWinEventHook
 SetWindowContextHelpId
-SetWindowLongA
+SetWindowLongA@12
 SetWindowLongW
 SetWindowPlacement
 SetWindowPos@28 = SetWindowPos
 SetWindowRgn
 SetWindowStationUser
-SetWindowTextA
+SetWindowTextA@8
 SetWindowTextW
 SetWindowWord
 SetWindowsHookA

@@ -331,7 +331,7 @@ GetThreadPriority
 GetThreadPriorityBoost
 GetThreadSelectorEntry
 GetThreadTimes
-GetTickCount
+GetTickCount@0
 GetTimeFormatA
 GetTimeFormatW
 GetTimeZoneInformation
@@ -551,7 +551,7 @@ SetFileTime
 SetHandleCount
 SetHandleInformation
 SetLastConsoleEventActive
-SetLastError
+SetLastError@4
 SetLocalTime
 SetLocaleInfoA
 SetLocaleInfoW
