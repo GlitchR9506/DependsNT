@@ -7,14 +7,13 @@ This is a (simple) alternative. should run on any Windows NT
 
 I used the https://github.com/NickHackman/C_Vector library in my code, see `inc\vector_c\vector.h` from `src\vector.h`
 
-# Features
+# Ino
 Runs on any version of Windows NT, NT 3.10 thru Windows 11
 
 Lists all imports of a PE executable
 
-Can toggle showing only missing exports
+<img width="1193" height="847" alt="image" src="https://github.com/user-attachments/assets/3d27d802-f035-489e-9b30-ca94b2245686" />
 
-<img width="1188" height="833" alt="image" src="https://github.com/user-attachments/assets/9a144170-c298-4d4b-9339-c37b51f50faf" />
 
 thats it, no dynamic stuff or anything.
 
