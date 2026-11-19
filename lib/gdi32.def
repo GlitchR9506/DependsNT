@@ -26,12 +26,12 @@ CopyEnhMetaFileA
 CopyEnhMetaFileW
 CopyMetaFileA
 CopyMetaFileW
-CreateBitmap
+CreateBitmap@20
 CreateBitmapIndirect
 CreateBrushIndirect
 CreateColorSpaceA
 CreateColorSpaceW
-CreateCompatibleBitmap
+CreateCompatibleBitmap@12
 CreateCompatibleDC@4
 CreateDCA
 CreateDCW

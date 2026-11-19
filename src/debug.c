@@ -59,6 +59,6 @@ void PopupErrorWithCode(DWORD ErrorLevel, LPCSTR szInfo, DWORD dwCode) {
 // change into a message box later if make gui application
 VOID ThrowError(LPCSTR szInfo) {
 	//printf(szInfo);
-    MessageBoxA(NULL, szInfo, "EXITING", MB_OK | MB_ICONSTOP);
+    MessageBoxA(NULL, szInfo, "ERROR", MB_OK | MB_ICONSTOP);
 	return;
 }

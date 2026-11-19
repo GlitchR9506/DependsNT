@@ -83,8 +83,8 @@ LONG ReadImports(PVOID pBaseAddress, PIMPORT_LIST pImportList) {
 				importInfo.Ordinal = IMAGE_ORDINAL(pThunkData->u1.Ordinal);
 			} else {
 				PIMAGE_IMPORT_BY_NAME pImportNameData = (PIMAGE_IMPORT_BY_NAME)ImageRvaToVa(ntHeaderAddress,pBaseAddress, (ULONG)pThunkData->u1.AddressOfData, NULL);
-				LPCSTR szImportName = pImportNameData->Name;
-				strcpy(importInfo.szName,pImportNameData->Name);
+				LPCSTR szImportName = (LPCSTR)pImportNameData->Name;
+				strcpy(importInfo.szName,szImportName);
 
 				importInfo.bFound = FALSE;
 				if (hDll != NULL) {

@@ -11,7 +11,7 @@ endif
 
 res: $(RESOURCEFILE)
 
-$(RESOURCEFILE) : src/resource.rc  src/appicon.ico
+$(RESOURCEFILE) : src/resource.rc src/res/*.*
 	$(WINDRES) $(RESOURCEFILE) src/resource.rc
 
 cleanres:

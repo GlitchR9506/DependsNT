@@ -167,7 +167,7 @@ DrawEdge@16
 DrawFocusRect
 DrawFrame
 DrawFrameControl@16
-DrawIcon
+DrawIcon@16
 DrawIconEx
 DrawMenuBar
 DrawMenuBarTemp

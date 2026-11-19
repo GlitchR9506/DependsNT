@@ -51,12 +51,12 @@
  *  2 * sizeof(size_t) + vector_size(vector) * sizeof(TYPE)
  *
  * Core Library Functions:
- * 		Accessors:
- * 			empty, size, capacity, front, back
+ *    Accessors:
+ *      empty, size, capacity, front, back
  *
- * 		Modifier:
- * 			push_back, pop_back, shrink_to_fit,
- * 			free, clear
+ *    Modifier:
+ *      push_back, pop_back, shrink_to_fit,
+ *      free, clear
  *
  * ---------------------------------------------------------------------
  * Example                                                             |
@@ -96,7 +96,7 @@
  *
  * Params:
  *
- * 	vector: the vector to get the size of
+ *  vector: the vector to get the size of
  *
  * Time Complexity: Constant
  *
@@ -104,7 +104,7 @@
  *
  *  0
  *
- * 	Return: size_t, the size of the vector
+ *  Return: size_t, the size of the vector
  */
 static inline size_t vector_size(void *vector) {
   if (vector) {
@@ -130,7 +130,7 @@ static inline void __vector_set_size(void *vector, size_t size) {
  *
  * Params:
  *
- * 	vector: the vector to get the capacity of
+ *  vector: the vector to get the capacity of
  *
  * Time Complexity: Constant
  *
@@ -138,7 +138,7 @@ static inline void __vector_set_size(void *vector, size_t size) {
  *
  *  0
  *
- * 	Return: size_t, the capacity of the vector
+ *  Return: size_t, the capacity of the vector
  */
 static inline size_t vector_capacity(void *vector) {
   if (vector) {
@@ -164,19 +164,19 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
  *
  * Params:
  *
- * 	vector: Vector to free
+ *  vector: Vector to free
  *
  * Time Complexity: constant
  *
  * Memory:
  *
- * 	-(sizeof(*(vector)) + 2 * sizeof(size_t))
+ *  -(sizeof(*(vector)) + 2 * sizeof(size_t))
  *
- * 	Return: void
+ *  Return: void
  */
 #define vector_free(vector)                                                    \
   if (vector) {                                                                \
-    HeapFree(GetProcessHeap(),0,&((size_t *)(vector))[-2]);                                           \
+    free(&((size_t *)(vector))[-2]);                                           \
   }
 
 /*
@@ -186,18 +186,18 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
  *
  * Params:
  *
- * 	vector: the vector to modify
+ *  vector: the vector to modify
  *
- * 	x: the new data to append to the end of vector
+ *  x: the new data to append to the end of vector
  *
  * Time Complexity: Amortized constant
  *
  * Memory:
- * 	Case of self->capacity == self->size:
- * 		sizeof(*(vector)) bytes * 2 * self->capacity + 2 *
+ *  Case of self->capacity == self->size:
+ *    sizeof(*(vector)) bytes * 2 * self->capacity + 2 *
  * sizeof(size_t)
  *
- * 	Return: void
+ *  Return: void
  */
 #define vector_push_back(vector, value)                                        \
   if (vector_capacity(vector) <= (vector_size(vector) + 1)) {                  \
@@ -218,9 +218,9 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
  * Logic:
  * find size, if the vector != NULL take it's size, otherwise 0
  * create size_t* new_array (size_t* to allow allocation for size & capacity)
- * 		if vector then move pointer to beginning otherwise NULL
- * 		reallocate to size of size_ot_item * new capacity + 2 *
- * 			sizeof(size_t) [for capacity & size]
+ *    if vector then move pointer to beginning otherwise NULL
+ *    reallocate to size of size_ot_item * new capacity + 2 *
+ *      sizeof(size_t) [for capacity & size]
  * Set size, this effectively does nothing when vector != NULL
  * Set capacity to new_size
  * return pointer to new vector
@@ -228,15 +228,9 @@ static inline void __vector_set_capacity(void *vector, size_t capacity) {
 static inline void *__vector_alloc(void *vector, size_t new_capacity,
                                    size_t size_of_item) {
   size_t size = ((vector) ? vector_size(vector) : 0);
-  size_t *new_array;
-  if (vector == NULL) {
-     new_array = (size_t *)HeapAlloc(GetProcessHeap(), 0,
+  size_t *new_array =
+      (size_t *)realloc(vector ? &(((size_t *)vector)[-2]) : NULL,
                         size_of_item * new_capacity + 2 * sizeof(size_t));
-    }else {
-  new_array =
-      (size_t *)HeapReAlloc(GetProcessHeap(), 0,vector ? &(((size_t *)vector)[-2]) : NULL,
-                        size_of_item * new_capacity + 2 * sizeof(size_t));
-    }
   new_array[0] = size;
   new_array[1] = new_capacity;
   return (&new_array[2]);
@@ -249,17 +243,17 @@ static inline void *__vector_alloc(void *vector, size_t new_capacity,
  *
  * Params:
  *
- * 	vector: Vector to query the size of
+ *  vector: Vector to query the size of
  *
  * Time Complexity: Constant
  *
  * Memory:
  *
- * 	0
+ *  0
  *
- * 	Return: 1, vector is empty,
- * 		1: is empty or is NULL
- * 		0: isn't empty
+ *  Return: 1, vector is empty,
+ *    1: is empty or is NULL
+ *    0: isn't empty
  */
 static inline int vector_empty(void *vector) {
   return vector_size(vector) == 0;
@@ -267,21 +261,21 @@ static inline int vector_empty(void *vector) {
 
 /*
  * Description: Reallocates vector with new_capacity as a long as
- * 		new_capacity >= capacity
+ *    new_capacity >= capacity
  *
  * Type: Modifier
  *
  * Params:
  *
- * 	vector: to change the capacity of
+ *  vector: to change the capacity of
  *
- * 	new_capacity: capacity to set it to
+ *  new_capacity: capacity to set it to
  *
  * Time Complexity: Linear
  *
  * Memory:
  *
- * 	2 * sizeof(size_t) + new_capacity * sizeof(*(vector))
+ *  2 * sizeof(size_t) + new_capacity * sizeof(*(vector))
  *
  *
  * Return: void
@@ -298,15 +292,15 @@ static inline int vector_empty(void *vector) {
  *
  * Params:
  *
- * 	vector: Vector to clear
+ *  vector: Vector to clear
  *
  * Time Complexity: Constant
  *
  * Memory:
  *
- * 	0
+ *  0
  *
- * 	Return: void
+ *  Return: void
  */
 static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
 
@@ -317,17 +311,17 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	type: type of data
+ *  type: type of data
  *
- * 	capacity: new capacity to set vector to
+ *  capacity: new capacity to set vector to
  *
  * Time Complexity: Constant
  *
  * Memory:
  *
- * 	sizeof(type) * capacity + 2 * sizeof(size_t)
+ *  sizeof(type) * capacity + 2 * sizeof(size_t)
  *
- * 	Return: void* (the new vector)
+ *  Return: void* (the new vector)
  */
 #define vector_init(type, capacity)                                            \
   __vector_alloc(NULL, capacity, sizeof(type));
@@ -339,15 +333,15 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	vector: Vector to get the last element of
+ *  vector: Vector to get the last element of
  *
  * Time Complexity: Constant
  *
  * Memory:
  *
- * 	0
+ *  0
  *
- * 	Return: value of the last element, or 0\NULL if empty
+ *  Return: value of the last element, or 0\NULL if empty
  */
 #define vector_back(vector) ((vector) ? (vector)[vector_size(vector) - 1] : 0)
 
@@ -358,15 +352,15 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	vector: Vector to get the first element of
+ *  vector: Vector to get the first element of
  *
  * Time Complexity: Constant
  *
  * Memory:
  *
- * 	0
+ *  0
  *
- * 	Return: value of the first element or 0\NULL if empty
+ *  Return: value of the first element or 0\NULL if empty
  */
 #define vector_front(vec) ((vector) ? (vector)[0] : 0)
 
@@ -377,15 +371,15 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	vector: Vector to resize
+ *  vector: Vector to resize
  *
  * Time Complexity: Linear
  *
  * Memory:
  *
- * 	-(sizeof(*(vector)) bytes * (self->capacity - self->size))
+ *  -(sizeof(*(vector)) bytes * (self->capacity - self->size))
  *
- * 	Return: void
+ *  Return: void
  */
 #define vector_shrink_to_fit(vector)                                           \
   if (vector) {                                                                \
@@ -402,15 +396,15 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	vector: the vector to modify
+ *  vector: the vector to modify
  *
  * Time Complexity: Amortized constant
  *
  * Memory:
- * 	Case of self->size == self->capacity / 4 :
- * 		-(self->capacity / 2)
+ *  Case of self->size == self->capacity / 4 :
+ *    -(self->capacity / 2)
  *
- * 	Return: last value in vector, must be freed
+ *  Return: last value in vector, must be freed
  */
 #define vector_pop_back(vector)                                                \
   ({                                                                           \
@@ -431,14 +425,14 @@ static inline void vector_clear(void *vector) { __vector_set_size(vector, 0); }
  *
  * Params:
  *
- * 	vector: the vector to modify
+ *  vector: the vector to modify
  *
  * Time Complexity: constant
  *
  * Memory:
  * 0
  *
- * 	Return: last value in vector, must be freed, or returns 0/NULL
+ *  Return: last value in vector, must be freed, or returns 0/NULL
  */
 #define vector_pop_back(vector)                                                \
   ((vector) ? (vector)[(((size_t *)(vector))[-2]--) - 1] : 0)

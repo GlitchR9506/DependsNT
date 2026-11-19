@@ -90,6 +90,13 @@ typedef struct {
 
 
         HBRUSH   brushBackground;
+
+        HBITMAP  bmMissingItem;
+        HBITMAP  bmMissingItem_mask;
+
+
+        COLORREF crCheckmark;
+        HPEN     hPenCheckmark;
 } APPTHEME, *PAPPTHEME;
 
 VOID InitAppThemes();

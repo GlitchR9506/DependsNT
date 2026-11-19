@@ -67,12 +67,12 @@ VOID RefreshImportDisplay() {
 
         //SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szFilePathBuffer);
         SetWindowText(hwndTopbar, szFilePathBuffer);
-        SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)"[ ] == OK; [M] == MISSING");
+        SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)"NF[ ] == OK; [M] == MISSING");
 
 
         for (int i = 0; i < lstImports.nImportedDLLs;i++) {
                 BOOL bFoundDLL = lstImports.arrImportedDLLs[i].bFound;
-                sprintf(szBuffer, "%s\t%s",lstImports.arrImportedDLLs[i].szName, bFoundDLL ? "" : "MISSING");
+                sprintf(szBuffer, "D%c%s %s",bFoundDLL ? 'F' : 'M',lstImports.arrImportedDLLs[i].szName, bFoundDLL ? "" : "MISSING");
                 SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szBuffer);
 
                 if (lstImports.arrImportedDLLs[i].bHideInUI) continue;
@@ -80,9 +80,9 @@ VOID RefreshImportDisplay() {
                         BOOL bFoundImport = lstImports.arrImportedDLLs[i].arrImports[j].bFound;
                         if (bShowOnlyMissing == FALSE || bFoundImport == FALSE) {
                                 if (lstImports.arrImportedDLLs[i].arrImports[j].szName[0] == '\0') {
-                                        sprintf(szBuffer, "[%c] ORDINAL[%u]",bFoundImport ? ' ' : 'M', lstImports.arrImportedDLLs[i].arrImports[j].Ordinal);
+                                        sprintf(szBuffer, "I%c ORDINAL[%#lX/%lu]",bFoundImport ? ' ' : 'M', lstImports.arrImportedDLLs[i].arrImports[j].Ordinal,lstImports.arrImportedDLLs[i].arrImports[j].Ordinal);
                                 } else {
-                                        sprintf(szBuffer, "[%c] \t%s",bFoundImport ? ' ' : 'M',lstImports.arrImportedDLLs[i].arrImports[j].szName);
+                                        sprintf(szBuffer, "I%c %s",bFoundImport ? ' ' : 'M',lstImports.arrImportedDLLs[i].arrImports[j].szName);
                                 }
                                 SendMessage(hwndListbox, LB_ADDSTRING, 0, (LPARAM)szBuffer);
                         }
@@ -104,11 +104,13 @@ VOID ParseFileAndDisplay(LPCSTR szFilePath) {
         // Read thru the imports of the PE
         if (ReadImports(pTargetFileBaseAddress, &lstImports) == -1) {
                 CloseTargetedFile();
-                ExitWithMessage("File is invalid\r\n");
+                //ThrowError("File is invalid\r\n");
+                return;
         }
         if (lstImports.arrImportedDLLs == NULL) {
                 CloseTargetedFile();
-                ExitWithMessage("internal error\r\n");
+                ThrowError("internal error\r\n");
+                return;
         }
         // Close the file and related handles
         CloseTargetedFile();
@@ -191,14 +193,40 @@ VOID DNT_DrawEdge(HDC hdc, PRECT pRect, HBRUSH brushBackground, HPEN hPenTopLeft
 }
 
 VOID DNT_DrawButton(HDC hdc, PRECT pRect, BOOL bActive) {
-        HPEN hPenTopLeft     = bActive ? pAppTheme->hPenShadow : pAppTheme->hPenHighlight;
-        HPEN hPenBottomRight = bActive ? pAppTheme->hPenHighlight : pAppTheme->hPenShadow;
+        HPEN hPenTopLeft     = bActive ? pAppTheme->hPenHighlight : pAppTheme->hPenShadow;
+        HPEN hPenBottomRight = bActive ? pAppTheme->hPenShadow : pAppTheme->hPenHighlight;
         HBRUSH hBrushBackground = bActive ? pAppTheme->brushButtonInside_Active : pAppTheme->brushButtonInside_Inactive;
 
         DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
         InflateRect(pRect, -1, -1);
         DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
 }
+
+VOID DNT_DrawCheckBox(HDC hdc, PRECT pRect, BOOL bActive) {
+        HPEN hPenTopLeft     = pAppTheme->hPenHighlight;
+        HPEN hPenBottomRight =  pAppTheme->hPenShadow;
+        HBRUSH hBrushBackground = pAppTheme->brushBackground;
+
+        DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+        InflateRect(pRect, -1, -1);
+        DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
+
+        if (bActive) {
+                HGDIOBJ oldPen = SelectObject(hdc, pAppTheme->hPenCheckmark);
+
+                UINT width  = pRect->right  - pRect->left;
+                UINT height = pRect->bottom - pRect->top;
+
+                MoveToEx(hdc, pRect->left + (width * 20)/100,pRect->top + (height * 50)/100, NULL);
+                LineTo(hdc,pRect->left + (width * 40)/100,pRect->top + (height * 80)/100);
+                LineTo(hdc,pRect->left + (width * 80)/100,pRect->top + (height * 15)/100);
+                //LineTo(hdc,pRect->right -1, pRect->top);
+
+                SelectObject(hdc, oldPen);
+        }
+
+}
+
 
 VOID DNT_DrawDropdownIcon(HDC hdc, PRECT pRect, BOOL bActive) {
 
@@ -235,14 +263,14 @@ VOID DNT_DrawDropdownIcon(HDC hdc, PRECT pRect, BOOL bActive) {
         //DNT_DrawEdge(hdc, pRect, hBrushBackground, hPenTopLeft, hPenBottomRight);
 }
 
+
+
 LRESULT CALLBACK WndProc(
                 HWND hWnd,         // window handle
                 UINT message,      // type of message
                 WPARAM wParam,     // additional information
                 LPARAM lParam)     // additional information
 {
-        HDC hdc;
-	PAINTSTRUCT ps;
 	RECT rect;
 	BOOL bSuccess;
         OPENFILENAME fileName = {0};
@@ -299,38 +327,95 @@ LRESULT CALLBACK WndProc(
                 case WM_DRAWITEM:
                         LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lParam;
                         switch (lpdis->CtlID) {
-                                case IDC_IMPORTLIST:
+                                case IDC_IMPORTLIST: {
 
                                         COLORREF colorBG =   lpdis->itemID % 2 ? pAppTheme->colorEvenItem : pAppTheme->colorOddItem;
                                         COLORREF colorText =  pAppTheme->colorItemText;
-                                        CHAR szBuffer[256] = {0};
+                                        CHAR szBuffer[256+2] = {0};
                                         SendMessage(lpdis->hwndItem,LB_GETTEXT,lpdis->itemID,(LPARAM)szBuffer);
 
-                                        BOOL bIsDLL = strchr(szBuffer, '.') != NULL;
+                                        BOOL bIsDLL = FALSE;//strchr(szBuffer, '.') != NULL;
+                                        BOOL bIsMissing = FALSE;
 
-                                        if (bIsDLL) {
+                                        // [0]D = DLL, N = INFO, I = IMPORT;[1] M = MISSING, F = FOUND...
+
+                                        if (szBuffer[0] == 'D') {
+                                                bIsDLL = TRUE;
                                                 colorBG = pAppTheme->colorImportantItem;
                                                 colorText = pAppTheme->colorImportantItemText;
-                                        }
-                                        if (strstr(szBuffer,"[M]") != NULL) {
-                                                colorBG = pAppTheme->colorItemMissing;
-                                                colorText = pAppTheme->colorItemMissingText;
-                                                if (strchr(szBuffer, ';') != NULL) {
-                                                        colorBG = pAppTheme->colorItemInfo;
-                                                        colorText = pAppTheme->colorItemInfoText;
-
+                                        } else if (szBuffer[0] == 'I') {
+                                                //colorBG = pAppTheme->colorItemMissing;
+                                                //colorText = pAppTheme->colorItemMissingText;
+                                                if (szBuffer[1] == 'M') {
+                                                        bIsMissing = TRUE;
+                                                        colorBG = pAppTheme->colorItemMissing;
+                                                        colorText = pAppTheme->colorItemMissingText;
                                                 }
+                                        } else if (szBuffer[0] == 'N') {
+                                                colorBG = pAppTheme->colorItemInfo;
+                                                colorText = pAppTheme->colorItemInfoText;
                                         }
+
+                                        // advance past info for print
+                                        LPCSTR szPrint = &szBuffer[2];
+
 
                                         HBRUSH hBrush = CreateSolidBrush(colorBG);
                                         FillRect(lpdis->hDC, &lpdis->rcItem,hBrush);
                                         DeleteObject(hBrush);
 
+                                        if (bIsMissing) {
+                                                UINT width = 16; UINT height = 16;
+                                                HDC hdcMem = CreateCompatibleDC(lpdis->hDC);
+
+
+                                                // Set background to white, foreground to black
+                                                COLORREF crOldBk = SetBkColor(lpdis->hDC, RGB(255, 255, 255));
+                                                COLORREF crOldText = SetTextColor(lpdis->hDC, RGB(0, 0, 0));
+
+                                                // Save default bm to select back later, where the last selected bm wont be locked
+                                                HBITMAP bmOld = SelectObject(hdcMem, pAppTheme->bmMissingItem_mask);
+
+                                                // clear spot on screen where the image is not blended against existing
+                                                BitBlt(lpdis->hDC,
+                                                        lpdis->rcItem.left, lpdis->rcItem.top,
+                                                        width,height,
+                                                        hdcMem,
+                                                        0,0,
+                                                        SRCAND
+                                                );
+
+                                                // write from out bitmap
+                                                SelectObject(hdcMem, pAppTheme->bmMissingItem);
+                                                BitBlt(lpdis->hDC,
+                                                        lpdis->rcItem.left, lpdis->rcItem.top,
+                                                        width,height,
+                                                        hdcMem,
+                                                        0,0,
+                                                        SRCPAINT
+                                                );
+
+                                                // set colors back for the owner
+                                                SetBkColor(lpdis->hDC,crOldBk);
+                                                SetTextColor(lpdis->hDC,crOldText);
+
+                                                // deselect out bm and delete the device context
+                                                SelectObject(hdcMem,bmOld);
+                                                DeleteDC(hdcMem);
+
+
+
+
+
+
+
+                                        }
+
                                         if (bIsDLL) {
                                                 BOOL bIsHidden;
                                                 RECT rcIcon = lpdis->rcItem;
                                                 for (int i = 0; i < lstImports.nImportedDLLs;i++) {
-                                                        if (strstr(szBuffer,lstImports.arrImportedDLLs[i].szName) != NULL) {
+                                                        if (strstr(szPrint,lstImports.arrImportedDLLs[i].szName) != NULL) {
                                                                 bIsHidden = lstImports.arrImportedDLLs[i].bHideInUI;
                                                                 break;
                                                         }
@@ -348,11 +433,11 @@ LRESULT CALLBACK WndProc(
 
                                         RECT rcText = lpdis->rcItem;
                                         rcText.left += 16;
-                                        DrawText(lpdis->hDC, szBuffer, -1, &rcText, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+                                        DrawText(lpdis->hDC, szPrint, -1, &rcText, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
 
 
 
-                                        break;
+                                        break;}
                                 case IDC_TOGGLE_ONLYMISSING: {
 
                                         CHAR szBuffer[256] = {0};
@@ -364,20 +449,20 @@ LRESULT CALLBACK WndProc(
                                         SetTextColor(lpdis->hDC, pAppTheme->colorButtonText);
 
                                         RECT rcText = lpdis->rcItem;
-                                        rcText.left += 30;
-                                        DrawText(lpdis->hDC, szBuffer, -1, &rcText, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+                                        rcText.left += 36;
+                                        DrawText(lpdis->hDC, szBuffer, -1, &rcText, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
 
 
                                         RECT rcCheckbox = lpdis->rcItem;
                                         rcCheckbox.left += 6;
                                         rcCheckbox.top += (lpdis->rcItem.bottom-24)/2+1;
-                                        rcCheckbox.right = 24;
+                                        rcCheckbox.right = 24+6;
                                         rcCheckbox.bottom = 24;
 
                                         //FrameRect(lpdis->hDC, &rcCheckbox,bShowOnlyMissing ? pAppTheme->colorOddItem : pAppTheme->colorEvenItem);
 
 
-                                        DNT_DrawButton(lpdis->hDC, &rcCheckbox, bShowOnlyMissing);
+                                        DNT_DrawCheckBox(lpdis->hDC, &rcCheckbox, bShowOnlyMissing);
 
                                         //UINT edge = (lpdis->itemState & ODS_SELECTED) ? EDGE_SUNKEN : EDGE_RAISED;
                                         //DrawEdge(lpdis->hDC, &lpdis->rcItem, edge, BF_RECT);
@@ -513,7 +598,7 @@ LRESULT CALLBACK WndProc(
                                                 //ULONG now = GetTickCount();
                                                 //if (now - lastClick < 50) break;
                                                 bShowOnlyMissing = !bShowOnlyMissing;//IsDlgButtonChecked(hWnd, IDC_TOGGLE_ONLYMISSING);
-                                                SendMessage(hwndToggleMissingOnly, BM_SETSTATE, (UINT)bShowOnlyMissing, 0);
+                                                //SendMessage(hwndToggleMissingOnly, BM_SETSTATE, (UINT)bShowOnlyMissing, 0);
                                                 InvalidateRect(hwndToggleMissingOnly, NULL, TRUE);
                                                 UpdateWindow(hwndToggleMissingOnly);
                                                 //ThrowError("aa");
@@ -544,6 +629,13 @@ LRESULT CALLBACK WndProc(
                         //
                         CreateFonts();
 
+                        //=========================================================================================
+                        //
+                        //
+                        // RESOURCES
+                        //
+                        //
+                        //=========================================================================================
 
 
                         //=========================================================================================
@@ -751,13 +843,16 @@ LRESULT CALLBACK WndProc(
                         UpdateWindow(hwndToggleMissingOnly);
                         break;
                 case WM_PAINT :
-			hdc = BeginPaint (hWnd, &ps);
-			GetClientRect (hWnd, &rect);
-                        FillRect(hdc,&rect,pAppTheme->brushBackground);
-                        rect.bottom = 30;
-			DrawText (hdc, szFilePathBuffer, -1, &rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-			EndPaint (hWnd, &ps); 
-			break;
+
+					HDC hdc;
+					PAINTSTRUCT ps;
+					hdc = BeginPaint (hWnd, &ps);
+					GetClientRect (hWnd, &rect);
+					FillRect(hdc,&rect,pAppTheme->brushBackground);
+					rect.bottom = 30;
+					DrawText (hdc, szFilePathBuffer, -1, &rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+					EndPaint (hWnd, &ps); 
+					break;
                 case WM_DESTROY:  // message: window being destroyed
                         PostQuitMessage(0);
                         break;

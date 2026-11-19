@@ -1,8 +1,12 @@
 // resource.h
 
-#define IDB_MIKU 101
-#define IDB_BACKGROUND 102
-#define IDB_GIF        103
+#define IDI_APPICON         101
+#define IDB_MISSINGITEMLIGHT 102
+#define IDB_MISSINGITEMDARK 103
+
+#define IDB_MIKU       104
+#define IDB_BACKGROUND 105
+#define IDB_GIF        106
 
 #define IDM_FILE_OPEN  1001
 #define IDM_FILE_EXIT  1002

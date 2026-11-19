@@ -24,7 +24,7 @@ CFLAGS =
 ifdef GCC
 	CFLAGS +=  -Wno-unused-value -Wno-ignored-pragma-intrinsic -Wno-missing-prototype-for-cc
 else
-	CFLAGS +=  -Werror=incompatible-pointer-types -Wno-ignored-pragma-intrinsic  -Wno-missing-prototype-for-cc
+	CFLAGS +=  -Werror=incompatible-pointer-types -Wno-ignored-pragma-intrinsic  -Wno-missing-prototype-for-cc -Wno-unused-value
 endif
 
 

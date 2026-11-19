@@ -1,14 +1,20 @@
 #include <winver.h>
 #include "resource.h"
 
-IDB_MIKU BITMAP "miku.bmp"
-IDB_BACKGROUND BITMAP "bg.bmp"
+IDI_APPICON ICON "res//appicon.ico"
+
+IDB_MISSINGITEMLIGHT BITMAP "res//missinglight.bmp"
+IDB_MISSINGITEMDARK  BITMAP "res//missingdark.bmp"
+
+
+
+IDB_MIKU BITMAP "res//miku.bmp"
+IDB_BACKGROUND BITMAP "res//bg.bmp"
 //IDB_GIF RCDATA "hi.gif"
-IDI_APPICON ICON "appicon.ico"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION     1,0,0,0
- PRODUCTVERSION  1,0,0,0
+ FILEVERSION     1,1,1,0
+ PRODUCTVERSION  1,1,0,0
  FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
  FILEFLAGS       0x0L
  FILEOS          VOS_NT_WINDOWS32
@@ -23,7 +29,7 @@ BEGIN
             VALUE "LegalCopyright",   "GlitchR9506\0"
             VALUE "OriginalFilename", "dependsnt.exe\0"
             VALUE "ProductName",      "DependsNT\0"
-            VALUE "ProductVersion",   "1.0.1.0\0"
+            VALUE "ProductVersion",   "1.1.1.0\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -40,6 +40,9 @@ VOID ThemeUpdate(PAPPTHEME pTheme) {
         if(pTheme->hPenShadow == NULL) {
                 pTheme->hPenShadow = CreatePen(PS_SOLID, 1, pTheme->colorShadow);
         }
+        if(pTheme->hPenCheckmark == NULL) {
+                pTheme->hPenCheckmark = CreatePen(PS_SOLID, 2, pTheme->crCheckmark);
+        }
 
 
 
@@ -114,6 +117,62 @@ VOID SetThemeInitial() {
 
 }
 
+VOID PunchMask(UINT width, UINT height, COLORREF crTransparent, HBITMAP bmSource, HBITMAP bmMask) {
+        //
+        // setup a HDC, and select our source bitmap into it
+        //
+        HDC     hdcImage = CreateCompatibleDC(NULL); 
+        HBITMAP bmImageOld = SelectObject(hdcImage, bmSource);
+
+        //
+        // setup a HDC, and select out mask bitmap into it
+        //
+        HDC     hdcMask = CreateCompatibleDC(NULL);
+        HBITMAP bmMaskOld = SelectObject(hdcMask, bmMask);
+
+
+        // Set background color to `crTransparent`
+        COLORREF crImageBkOld = SetBkColor(hdcImage, crTransparent);
+
+        // Create our mask
+        //    Since we are copying to a 1-bit bitmap, everything of the background color will be white,
+        //    everything else will be black
+        BitBlt(hdcMask,
+                0,0,
+                width, height,
+                hdcImage,
+                0,0,
+                SRCCOPY
+        );
+
+
+        // set background color to black, set foreground color to white
+        SetBkColor(hdcImage, RGB(0, 0, 0));       
+        SetTextColor(hdcImage, RGB(255, 255, 255));
+
+        // SRCAND, is boolean AND operation, writes all true(white) black pixels in the hdcMask to hdcImage
+        BitBlt(hdcImage,
+                0,0,
+                width, height,
+                hdcMask,
+                0,0,
+                SRCAND
+        );
+
+        //
+        // Clean-up mask
+        //
+        SelectObject(hdcMask, bmMaskOld);
+        DeleteDC(hdcMask);
+
+        //
+        // Clean-up Image
+        //
+        SetBkColor(hdcImage, crImageBkOld);
+        SelectObject(hdcImage, bmImageOld);
+        DeleteDC(hdcImage);
+
+}
 
 HBITMAP hbmBG = NULL;
 BITMAP  hmBG = {0};
@@ -133,7 +192,7 @@ VOID InitAppThemes() {
         //}
 
 
-
+/*
         APPTHEME themeDefault = {0};
         strcpy(themeDefault.szName,"Default");
         themeDefault.colorBackground        = RGB(110,110,110);
@@ -153,7 +212,7 @@ VOID InitAppThemes() {
         themeDefault.colorButtonInside_Active = RGB(0,100,0);
         themeDefault.colorButtonInside_Inactive = RGB(100,0,0);
         //themeDefault.brushBackground = CreatePatternBrush(hbmBG);
-        //vector_push_back(vecThemes, themeDefault);
+        //vector_push_back(vecThemes, themeDefault);*/
 
         APPTHEME themeSoft = {0};
         strcpy(themeSoft.szName,"Default");
@@ -171,9 +230,47 @@ VOID InitAppThemes() {
         themeSoft.colorItemInfoText      = RGB(255,255,255);
         themeSoft.colorHighlight         = RGB(0,0,0);
         themeSoft.colorShadow            = RGB(255,255,255);
-        themeSoft.colorButtonInside_Active = RGB(0,100,0);
+        themeSoft.colorButtonInside_Active   = RGB(0,100,0);
         themeSoft.colorButtonInside_Inactive = RGB(100,0,0);
+        themeSoft.bmMissingItem              = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_MISSINGITEMLIGHT));
+        themeSoft.bmMissingItem_mask         = CreateBitmap(16,16,1,1,NULL);
+        themeSoft.crCheckmark            = RGB(53,99,33);
+
+        if (themeSoft.bmMissingItem == NULL) {
+            ThrowError("Failed to load bitmap IDB_MISSINGITEMLIGHT from resources!");
+        }
+        PunchMask(16,16,RGB(255,000,255),themeSoft.bmMissingItem,themeSoft.bmMissingItem_mask);
         vector_push_back(vecThemes, themeSoft);
+
+
+        APPTHEME themeDark = {0};
+        strcpy(themeDark.szName,"Dark");
+        themeDark.colorBackground        = RGB(80,80,80);
+        themeDark.colorTopBarText        = RGB(0,0,0);
+        themeDark.colorEvenItem          = RGB(100,100,100);
+        themeDark.colorOddItem           = RGB(110,110,110);
+        themeDark.colorImportantItem     = RGB(140,140,140);
+        themeDark.colorButtonText        = RGB(0,0,0);
+        themeDark.colorImportantItemText = RGB(0,0,0);
+        themeDark.colorItemText          = RGB(0,0,0);
+        themeDark.colorItemMissing       = RGB(104,42,42);
+        themeDark.colorItemMissingText   = RGB(150,150,150);
+        themeDark.colorItemInfo          = RGB(0,0,0);
+        themeDark.colorItemInfoText      = RGB(150,150,150);
+        themeDark.colorHighlight         = RGB(0,0,0);
+        themeDark.colorShadow            = RGB(255,255,255);
+        themeDark.colorButtonInside_Active   = RGB(0,100,0);
+        themeDark.colorButtonInside_Inactive = RGB(100,0,0);
+        themeDark.bmMissingItem              = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_MISSINGITEMDARK));
+        themeDark.bmMissingItem_mask         = CreateBitmap(16,16,1,1,NULL);
+        themeDark.crCheckmark            = RGB(38,127,000);
+        
+        if (themeDark.bmMissingItem  == NULL) {
+            ThrowError("Failed to load bitmap IDB_MISSINGITEMICON from resources!");
+        }
+        PunchMask(16,16,RGB(255,000,255),themeDark.bmMissingItem,themeDark.bmMissingItem_mask);
+        vector_push_back(vecThemes, themeDark);
+/*
 
         APPTHEME themePurple = {0};
         strcpy(themePurple.szName,"Purple");
@@ -193,28 +290,7 @@ VOID InitAppThemes() {
         themePurple.colorShadow            = RGB(255,255,255);
         themePurple.colorButtonInside_Active = RGB(0,100,0);
         themePurple.colorButtonInside_Inactive = RGB(100,0,0);
-        //vector_push_back(vecThemes, themePurple);
-
-        APPTHEME themeDark = {0};
-        strcpy(themeDark.szName,"Dark");
-        themeDark.colorBackground        = RGB(80,80,80);
-        themeDark.colorTopBarText        = RGB(0,0,0);
-        themeDark.colorEvenItem          = RGB(100,100,100);
-        themeDark.colorOddItem           = RGB(110,110,110);
-        themeDark.colorImportantItem     = RGB(140,140,140);
-        themeDark.colorButtonText        = RGB(0,0,0);
-        themeDark.colorImportantItemText = RGB(0,0,0);
-        themeDark.colorItemText          = RGB(0,0,0);
-        themeDark.colorItemMissing       = RGB(104,42,42);
-        themeDark.colorItemMissingText   = RGB(150,150,150);
-        themeDark.colorItemInfo          = RGB(0,0,0);
-        themeDark.colorItemInfoText      = RGB(150,150,150);
-        themeDark.colorHighlight         = RGB(0,0,0);
-        themeDark.colorShadow            = RGB(255,255,255);
-        themeDark.colorButtonInside_Active = RGB(0,100,0);
-        themeDark.colorButtonInside_Inactive = RGB(100,0,0);
-        vector_push_back(vecThemes, themeDark);
-
+        //vector_push_back(vecThemes, themePurple);*/
 
          //Initialize stuff within them
         for (int i = 0; i < vector_size(vecThemes); i++) {
@@ -231,11 +307,11 @@ VOID CreateFonts() {
         //
         // Create the fonts
         //
-        hFont = CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
+        hFont = CreateFontA(18, 0, 0, 0, 900, FALSE, FALSE, FALSE, ANSI_CHARSET, 
               OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
               DEFAULT_PITCH | FF_DONTCARE, "Courier New");
 
-        hFontSmall = CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, 
+        hFontSmall = CreateFontA(16, 0, 0, 0, 900, FALSE, FALSE, FALSE, ANSI_CHARSET, 
               OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
               DEFAULT_PITCH | FF_DONTCARE, "Courier New");
 }
