@@ -13,8 +13,8 @@ IDB_BACKGROUND BITMAP "res//bg.bmp"
 //IDB_GIF RCDATA "hi.gif"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION     1,1,1,0
- PRODUCTVERSION  1,1,0,0
+ FILEVERSION     VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,0
+ PRODUCTVERSION  VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,0
  FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
  FILEFLAGS       0x0L
  FILEOS          VOS_NT_WINDOWS32
@@ -29,7 +29,7 @@ BEGIN
             VALUE "LegalCopyright",   "GlitchR9506\0"
             VALUE "OriginalFilename", "dependsnt.exe\0"
             VALUE "ProductName",      "DependsNT\0"
-            VALUE "ProductVersion",   "1.1.1.0\0"
+            VALUE "ProductVersion",   "VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.0\0"
         END
     END
     BLOCK "VarFileInfo"

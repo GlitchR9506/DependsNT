@@ -761,7 +761,7 @@ LRESULT CALLBACK WndProc(
                         GetClientRect (hWnd, &rect);
                         hwndBottombar = CreateWindowA(
                                 "STATIC",
-                                "Dependency Walker for Windows NT 3.1+, v1.1, 2026, GlitchR9506",
+                                "Dependency Walker for Windows NT 3.1+, v"VERSION_STRING", 2026, GlitchR9506",
                                 WS_CHILD | WS_VISIBLE | SS_LEFT,
                                 0,
                                 rect.bottom - heightBottombar,

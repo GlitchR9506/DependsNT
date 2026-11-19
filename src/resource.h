@@ -21,3 +21,12 @@
 #define IDM_THEMLISTEND        4200
 
 #define ID_IDEMPTY             5000
+
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 1
+#define VERSION_PATCH 1
+
+#define STR_HELPER(X) #X
+#define STR(X) STR_HELPER(X)
+
+#define VERSION_STRING STR(VERSION_MAJOR) "." STR(VERSION_MINOR) "." STR(VERSION_PATCH)
