@@ -1,6 +1,8 @@
 # DependsNT
 Dependency Walker for NT 3.1
 
+<img width="1920" height="1080" alt="screenshot" src="https://github.com/user-attachments/assets/73e34beb-81ca-44df-847c-180adcd52844" />
+
 Dependency Walker does not run on Windows NT 3.1
 
 This is a (simple) alternative. should run on any Windows NT
@@ -11,8 +13,6 @@ I used the https://github.com/NickHackman/C_Vector library in my code, see `inc\
 Runs on any version of Windows NT, NT 3.10 thru Windows 11
 
 Lists all imports of a PE executable
-
-<img width="1193" height="847" alt="image" src="https://github.com/user-attachments/assets/3d27d802-f035-489e-9b30-ca94b2245686" />
 
 
 thats it, no dynamic stuff or anything.
